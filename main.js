@@ -25,26 +25,27 @@ class Field {
         })
     }
 
-    //Generates a random field given the number of rows and columns
+    //Generates a random field given the number of rows and columns. It uses the Field class built-in method to generate a valid field
     static generateField(height, width) {
         let randomField = [];
-        let subfield = ['*'];
-        for (let i = 0; i < height; i++) {
-            while (subfield.length < width) {
-                const randomNumber = Math.random();
-                if (randomNumber > 0.85) {
-                    subfield.push(hole);
-                } else {
-                    subfield.push(fieldCharacter);
+        do {
+            let subfield = ['*'];
+            for (let i = 0; i < height; i++) {
+                while (subfield.length < width) {
+                    const randomNumber = Math.random();
+                    if (randomNumber > 0.85) {
+                        subfield.push(hole);
+                    } else {
+                        subfield.push(fieldCharacter);
+                    };
                 };
+                randomField.push(subfield);
+                subfield = [];
             };
-            randomField.push(subfield);
-            subfield = [];
-        };
-        const hatPosition = randomPos(height, width);
-        randomField[hatPosition[0]].splice([hatPosition[1]], 1, hat);
+            const hatPosition = randomPos(height, width);
+            randomField[hatPosition[0]].splice([hatPosition[1]], 1, hat);
+        } while (!Field.checkField(randomField));
         return randomField;
-        
     }
 
     //Starts the game and handles its logic
@@ -96,7 +97,7 @@ class Field {
     }
 
     //Check if the field is solvable
-    checkField() {
+    static checkField(field) {
         let x = 0;
         let y = 0;
         let lastMove = [];
@@ -106,33 +107,32 @@ class Field {
         let leftMargin = true;
         const startTime = Date.now();
 
-        while(this.field[y][x] !== hat) {
+        while(field[y][x] !== hat) {
             //Set timeout --- if hat isn't found by then, the maze is assumed to be unsolvable
             if (Date.now() - startTime > 3000) {break};
 
-            this.field[y][x] = pathCharacter;
-            //this.print();
+            field[y][x] = pathCharacter;
             
             //Go right?
-            if (rightMargin === false && (this.field[y][x + 1] === fieldCharacter || this.field[y][x + 1] === hat)){
+            if (rightMargin === false && (field[y][x + 1] === fieldCharacter || field[y][x + 1] === hat)){
                 x++;
                 //Check if at the right margin
-                if (x === this.field[y].length - 1) {
+                if (x === field[y].length - 1) {
                     rightMargin = true;
                 }
                 leftMargin = false;
                 lastMove.push('r');
             //Go down?
-            } else if (bottomMargin === false && (this.field[y + 1][x] === fieldCharacter || this.field[y + 1][x] === hat)) {
+            } else if (bottomMargin === false && (field[y + 1][x] === fieldCharacter || field[y + 1][x] === hat)) {
                 y++;
                 //Check if at the bottom margin
-                if (y === this.field.length - 1) {
+                if (y === field.length - 1) {
                     bottomMargin = true;
                 };
                 topMargin = false;
                 lastMove.push('d');
             //Go left?
-            } else if (leftMargin === false && (this.field[y][x - 1] === fieldCharacter || this.field[y][x - 1] === hat)) {
+            } else if (leftMargin === false && (field[y][x - 1] === fieldCharacter || field[y][x - 1] === hat)) {
                 x--;
                 //Check if at the left margin
                 if (x === 0) {
@@ -141,7 +141,7 @@ class Field {
                 rightMargin = false;
                 lastMove.push('l');
             //Go up?
-            } else if (topMargin === false && (this.field[y - 1][x] === fieldCharacter || this.field[y - 1][x] === hat)) {
+            } else if (topMargin === false && (field[y - 1][x] === fieldCharacter || field[y - 1][x] === hat)) {
                 y--;
                 //Check if at the top margin
                 if (y === 0) {
@@ -173,7 +173,7 @@ class Field {
                     case 'l':
                         x++;
                         //Check if at the right margin
-                        if (x === this.field[y].length - 1) {
+                        if (x === field[y].length - 1) {
                             rightMargin = true;
                         }
                         leftMargin = false;
@@ -182,7 +182,7 @@ class Field {
                     case 'u':
                         y++;
                         //Check if at the bottom margin
-                        if (y === this.field.length - 1) {
+                        if (y === field.length - 1) {
                             bottomMargin = true;
                         };
                         topMargin = false;
@@ -192,7 +192,7 @@ class Field {
             };
 
         }
-        if (this.field[y][x] === hat) {
+        if (field[y][x] === hat) {
             return true;
             console.log('The maze can be solved!');
         } else {
@@ -206,4 +206,4 @@ class Field {
 
 
 const autoField = new Field(Field.generateField(15, 30));
-autoField.print();
+autoField.playGame();

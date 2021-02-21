@@ -28,12 +28,15 @@ class Field {
     //Generates a random field given the number of rows and columns. It uses the Field class built-in method to generate a valid field
     static generateField(height, width) {
         let randomField = [];
+        let newField;
         do {
+            randomField = [];
+            newField = [];
             let subfield = ['*'];
             for (let i = 0; i < height; i++) {
                 while (subfield.length < width) {
                     const randomNumber = Math.random();
-                    if (randomNumber > 0.85) {
+                    if (randomNumber > 0.70) {
                         subfield.push(hole);
                     } else {
                         subfield.push(fieldCharacter);
@@ -42,10 +45,15 @@ class Field {
                 randomField.push(subfield);
                 subfield = [];
             };
+            //Put hat in a random position on one of the last 2 rows
             const hatPosition = randomPos(height, width);
             randomField[hatPosition[0]].splice([hatPosition[1]], 1, hat);
+            //Make copy of randomField to return in case it\'s valid, since the checking function alters the array.
+            newField = randomField.map(arr => {
+                return arr.slice();
+            });
         } while (!Field.checkField(randomField));
-        return randomField;
+        return newField;
     }
 
     //Starts the game and handles its logic
@@ -70,9 +78,6 @@ class Field {
                         break;
                     case 'd':
                         y++;
-                        break;
-                    default:
-                        console.log('Wrong input, try l, r, u or d.');
                         break;
                 };
 
@@ -109,7 +114,7 @@ class Field {
 
         while(field[y][x] !== hat) {
             //Set timeout --- if hat isn't found by then, the maze is assumed to be unsolvable
-            if (Date.now() - startTime > 3000) {break};
+            if (Date.now() - startTime > 1000) {break};
 
             field[y][x] = pathCharacter;
             
@@ -204,6 +209,6 @@ class Field {
 
 
 
-
+//Example of playing the game with an auto generated field
 const autoField = new Field(Field.generateField(15, 30));
 autoField.playGame();
